@@ -1,0 +1,15 @@
+
+Logs for log54254.txt ... 
+Client Information : Socket[addr=/127.0.0.1,port=54254,localport=5056]
+New Client connected at : Fri May 01 19:55:40 IST 2020
+Client request (Fri May 01 19:55:54 IST 2020) : Date
+Client request status (Fri May 01 19:55:54 IST 2020) : Date => Success
+Client request (Fri May 01 19:55:57 IST 2020) : Time
+Client request status (Fri May 01 19:55:57 IST 2020) : Time => Success
+Client request (Fri May 01 19:56:00 IST 2020) : log
+Client request status (Fri May 01 19:56:00 IST 2020) : log => Success
+Client request (Fri May 01 19:56:05 IST 2020) : asdk
+Client request status (Fri May 01 19:56:05 IST 2020) : asdk => Failed
+Client request (Fri May 01 19:56:09 IST 2020) : Exit
+Client request status (Fri May 01 19:56:09 IST 2020) : Exit => Success
+Client connection closed (Fri May 01 19:56:09 IST 2020) : Socket[addr=/127.0.0.1,port=54254,localport=5056]

@@ -6,6 +6,7 @@
 package socket_programming;
 import java.net.*; 
 import java.io.*; 
+import java.util.Date;
 
 /**
  *
@@ -21,6 +22,9 @@ public class Client
 { 
     public static void main(String[] args) throws IOException 
     { 
+        String projectPath = System.getProperty("user.dir");
+        String filePath = projectPath + "\\clientLogs\\log.txt";
+        
         try
         { 
             Scanner scn = new Scanner(System.in); 
@@ -53,10 +57,9 @@ public class Client
                     int FILE_SIZE = 6022386;
                     byte[] myByteArray = new byte[FILE_SIZE];
 
-                    String projectPath = System.getProperty("user.dir");
-                    String filePath = projectPath + "\\clientLogs\\log" + s.getLocalPort() + ".txt";
+                    filePath = projectPath + "\\clientLogs\\log" + s.getLocalPort() + ".txt";
                     int bytesRead = dis.read(myByteArray, 0, myByteArray.length);
-
+                    
                     BufferedOutputStream bufferedOutputStream;
                     FileOutputStream fileOutputStream = new FileOutputStream(filePath);
                     bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
@@ -67,7 +70,18 @@ public class Client
                 }
                 else if(tosend.equalsIgnoreCase("send"))
                 {
-                    
+                    System.out.println("Sending file to Server...");
+                    File myFile = new File(filePath);
+                    byte[] myByteArray = new byte[(int) myFile.length()];
+                    BufferedInputStream bufferedInputStream;
+                    try (FileInputStream fileInputStream = new FileInputStream(myFile)) {
+                        bufferedInputStream = new BufferedInputStream(fileInputStream);
+                        bufferedInputStream.read(myByteArray, 0, myByteArray.length);
+                        dos.write(myByteArray, 0, myByteArray.length);
+                        dos.flush();
+                        System.out.println("Send file success...");
+                    }
+                    bufferedInputStream.close();
                 }
                 else
                 {

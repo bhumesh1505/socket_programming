@@ -9,6 +9,7 @@ package socket_programming;
  *
  * @author BHUMESH
  */
+
 import java.net.*;
 import java.io.*;
 // Java implementation of Server side 
@@ -112,7 +113,7 @@ class ClientHandler extends Thread
             String received; 
             String toreturn;
             int count = 0;
-            dos.writeUTF("What do you want?[Date | Time]..\n"+ 
+            dos.writeUTF("What do you want?[Date | Time | log | send ]..\n"+ 
                                             "Type Exit to terminate connection." + count++); 
             boolean stop = false;
             while (!stop) 
@@ -155,6 +156,10 @@ class ClientHandler extends Thread
                             bufferedInputStream.close();
                             appendStrToFile(filePath, "Client request status (" + new Date() + ") : " + received + " => " + "Success" );
                             break;
+                        }
+                    case "send":
+                        {
+                            
                         }
                     case "exit":
                         {

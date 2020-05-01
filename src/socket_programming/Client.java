@@ -54,7 +54,7 @@ public class Client
                     byte[] myByteArray = new byte[FILE_SIZE];
 
                     String projectPath = System.getProperty("user.dir");
-                    String filePath = projectPath + "\\clientLogs\\logDownload.txt";
+                    String filePath = projectPath + "\\clientLogs\\log" + s.getLocalPort() + ".txt";
                     int bytesRead = dis.read(myByteArray, 0, myByteArray.length);
 
                     BufferedOutputStream bufferedOutputStream;
@@ -64,6 +64,10 @@ public class Client
                     bufferedOutputStream.flush();
                     System.out.println("Get file success...");
                     bufferedOutputStream.close();
+                }
+                else if(tosend.equalsIgnoreCase("send"))
+                {
+                    
                 }
                 else
                 {

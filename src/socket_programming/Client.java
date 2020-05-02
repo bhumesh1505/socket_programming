@@ -17,7 +17,6 @@ import java.io.*;
 import java.util.Scanner; 
 
 // Client class 
-// try git merge
 public class Client 
 { 
     public static void main(String[] args) throws IOException 

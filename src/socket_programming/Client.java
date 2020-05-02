@@ -38,6 +38,7 @@ public class Client
             DataInputStream dis = new DataInputStream(s.getInputStream()); 
             DataOutputStream dos = new DataOutputStream(s.getOutputStream()); 
 
+            System.out.println("New Client : " + s);            
             System.out.println(dis.readUTF());
             while (true) 
             { 
@@ -82,6 +83,13 @@ public class Client
                         System.out.println("Send file success...");
                     }
                     bufferedInputStream.close();
+                    String received = dis.readUTF(); 
+                    if(received.equalsIgnoreCase("daemon"))
+                    {
+                        s.close();
+                        System.out.println("You are blocked " + s); 
+                        break;
+                    }
                 }
                 else
                 {

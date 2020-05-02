@@ -112,9 +112,11 @@ class ClientHandler extends Thread
         { 
             String received; 
             String toreturn;
+            byte[] myByteArray = new byte[1] ;
+            
             int count = 0;
             dos.writeUTF("What do you want?[Date | Time | log | send ]..\n"+ 
-                                            "Type Exit to terminate connection." + count++); 
+                                            "Type Exit to terminate connection."); 
             boolean stop = false;
             while (!stop) 
             {
@@ -144,7 +146,7 @@ class ClientHandler extends Thread
                         {
                             System.out.println("Sending file to client...");
                             myFile = new File(filePath);
-                            byte[] myByteArray = new byte[(int) myFile.length()];
+                            myByteArray = new byte[(int) myFile.length()];
                             BufferedInputStream bufferedInputStream;
                             try (FileInputStream fileInputStream = new FileInputStream(myFile)) {
                                 bufferedInputStream = new BufferedInputStream(fileInputStream);
@@ -159,7 +161,42 @@ class ClientHandler extends Thread
                         }
                     case "send":
                         {
+                            System.out.println("Getting file from Client... : ");
                             
+                            int FILE_SIZE = 6022386;
+                            byte[] myByteArrayReceived = new byte[FILE_SIZE];
+
+                            //filePath = projectPath + "\\clientLogs\\log" + s.getLocalPort() + ".txt";
+                            int bytesRead = dis.read(myByteArrayReceived, 0, myByteArrayReceived.length);
+                            
+                            
+                            System.out.println("bytes read : " + bytesRead);
+                            System.out.println(bytesRead + " " + myByteArray.length );
+                            
+                            boolean status = true;
+                            int i=0;
+                            if(myByteArray.length != bytesRead)
+                            {
+                                status = false;
+                            }
+                            else
+                            {
+                                while(i < bytesRead && status)
+                                {
+                                    if(myByteArrayReceived[i] != myByteArray[i] )
+                                    {
+                                        status = false;
+                                    }
+                                    i++;
+                                }
+                            }
+                            System.out.println("Compare log files before and after :  " + status );
+                            if(status == false)
+                            {
+                                // notify
+                            }
+                            appendStrToFile(filePath, "Client request status (" + new Date() + ") : " + received + " => " + "Success" );
+                            break;
                         }
                     case "exit":
                         {

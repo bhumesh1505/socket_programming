@@ -23,6 +23,7 @@ import java.util.*;
 public class Server 
 { 
     public final static int SOCKET_PORT = 5056;  // you may change this
+    static Vector<ClientHandler> ar = new Vector<>();
     
     public static void main(String[] args) throws IOException 
     { 
@@ -31,7 +32,13 @@ public class Server
         
         System.out.println("Server running ... ");
         // running infinite loop for getting 
-        // client request 
+        // client request
+        
+        int interval = 10000;
+        CheckPeriodically check = new CheckPeriodically(interval);
+        Thread t2 = new Thread(check);
+        t2.start();
+        
         while (true) 
         { 
             Socket s = null; 
@@ -49,9 +56,14 @@ public class Server
 
                 System.out.println("Assigning new thread for this client"); 
 
+                ClientHandler mtch = new ClientHandler(s, dis, dos);
+                
                 // create a new thread object 
-                Thread t = new ClientHandler(s, dis, dos); 
-
+                Thread t = new Thread(mtch); 
+                
+                // add this client to active clients list 
+                ar.add(mtch); 
+                
                 // Invoking the start() method 
                 t.start(); 
             } 
@@ -72,6 +84,9 @@ class ClientHandler extends Thread
     final DataOutputStream dos; 
     final Socket s; 
 
+    int FILE_SIZE = 6022386;
+    byte[] recoveredLogBytes = new byte[FILE_SIZE];
+
     String projectPath;
     String filePath;
     String logFile;
@@ -79,18 +94,6 @@ class ClientHandler extends Thread
     //FileInputStream fileInputStream = null;
     //BufferedInputStream bufferedInputStream = null;
 
-    private void appendStrToFile(String fileName, String str) 
-    { 
-        try { 
-            BufferedWriter out = new BufferedWriter(new FileWriter(fileName, true)); 
-            out.write("\n"+str); 
-            out.close(); 
-        }
-        catch (IOException e) { 
-            System.out.println("exception occoured" + e); 
-        } 
-    }
-    
     // Constructor 
     public ClientHandler(Socket s, DataInputStream dis, DataOutputStream dos) 
     {
@@ -104,7 +107,41 @@ class ClientHandler extends Thread
         appendStrToFile(filePath, "Client Information : " + s );
         appendStrToFile(filePath, "New Client connected at : " + new Date() );
     } 
-
+    
+    private void appendStrToFile(String fileName, String str) 
+    { 
+        try { 
+            BufferedWriter out = new BufferedWriter(new FileWriter(fileName, true)); 
+            out.write("\n"+str); 
+            out.close(); 
+        }
+        catch (IOException e) { 
+            System.out.println("exception occoured" + e); 
+        } 
+    }
+    
+    public void printMsg(String s)
+    {
+        System.out.println(s);
+    }
+    
+    // write recovered bytes to log file
+    public void recover()
+    {
+        try
+        {
+            FileOutputStream fileOutputStream = new FileOutputStream(filePath);
+            try (BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream)) {
+                bufferedOutputStream.write(recoveredLogBytes, 0, recoveredLogBytes.length);
+                bufferedOutputStream.flush();
+            }
+        }
+        catch(IOException e)
+        {
+            System.out.println(e);
+        }
+    }
+    
     @Override
     public void run() 
     { 
@@ -114,7 +151,6 @@ class ClientHandler extends Thread
             String toreturn;
             byte[] myByteArray = new byte[1] ;
             
-            int count = 0;
             dos.writeUTF("What do you want?[Date | Time | log | send ]..\n"+ 
                                             "Type Exit to terminate connection."); 
             boolean stop = false;
@@ -170,7 +206,6 @@ class ClientHandler extends Thread
                             int bytesRead = dis.read(myByteArrayReceived, 0, myByteArrayReceived.length);
                             
                             
-                            System.out.println("bytes read : " + bytesRead);
                             System.out.println(bytesRead + " " + myByteArray.length );
                             
                             boolean status = true;
@@ -194,7 +229,26 @@ class ClientHandler extends Thread
                             if(status == false)
                             {
                                 // notify
+                                for(ClientHandler c : Server.ar)
+                                {
+                                    if(c != this && !c.isDaemon())
+                                    {
+                                        c.printMsg("About to recover ... " + c.s);
+                                        c.recover();
+                                    }
+                                }
+                                System.out.println("Closing this connection : " + s); 
+                                System.out.println("Connection closed !"); 
+                                stop = true;
+                                dos.writeUTF("daemon");                            
+                                this.setDaemon(true);
+                                s.close(); 
                             }
+                            else
+                            {
+                                dos.writeUTF("not daemon");                            
+                            }
+                            
                             appendStrToFile(filePath, "Client request status (" + new Date() + ") : " + received + " => " + "Success" );
                             break;
                         }
@@ -224,3 +278,38 @@ class ClientHandler extends Thread
         } 
     } 
 } 
+
+class CheckPeriodically extends Thread
+{
+    int t = 1000; // default 1 sec
+    CheckPeriodically(int t)
+    {
+        this.t = t;
+    }
+    
+    @Override
+    public void run()
+    {
+        try
+        {
+            while(true)
+            {
+                for(ClientHandler c : Server.ar)
+                {
+                    File myFile = new File(c.filePath);
+                    c.recoveredLogBytes = new byte[(int) myFile.length()];
+                    BufferedInputStream bufferedInputStream;
+                    try (FileInputStream fileInputStream = new FileInputStream(myFile)) {
+                        bufferedInputStream = new BufferedInputStream(fileInputStream);
+                        bufferedInputStream.read(c.recoveredLogBytes, 0, c.recoveredLogBytes.length);
+                    }
+                    bufferedInputStream.close();
+                }
+                Thread.sleep(t);
+            }
+        }
+        catch(Exception e){
+            System.out.println(e);
+        }
+    }
+}

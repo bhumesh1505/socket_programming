@@ -102,7 +102,7 @@ class ClientHandler extends Thread
         this.dos = dos; 
         projectPath = System.getProperty("user.dir");
         logFile = "log" + s.getPort() + ".txt";
-        filePath = projectPath + "\\serverLogs\\" + logFile;
+        filePath = projectPath + "/serverLogs/" + logFile;
         appendStrToFile(filePath, "Logs for " + logFile + " ... ");
         appendStrToFile(filePath, "Client Information : " + s );
         appendStrToFile(filePath, "New Client connected at : " + new Date() );

@@ -23,7 +23,7 @@ public class Client
     public static void main(String[] args) throws IOException 
     { 
         String projectPath = System.getProperty("user.dir");
-        String filePath = projectPath + "\\clientLogs\\log.txt";
+        String filePath = projectPath + "/clientLogs/log.txt";
         
         try
         {
@@ -65,7 +65,7 @@ public class Client
                     int FILE_SIZE = 6022386;
                     byte[] myByteArray = new byte[FILE_SIZE];
 
-                    filePath = projectPath + "\\clientLogs\\log" + s.getLocalPort() + ".txt";
+                    filePath = projectPath + "/clientLogs/log" + s.getLocalPort() + ".txt";
                     int bytesRead = dis.read(myByteArray, 0, myByteArray.length);
                     
                     BufferedOutputStream bufferedOutputStream;

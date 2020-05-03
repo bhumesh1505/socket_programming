@@ -125,6 +125,11 @@ class ClientHandler extends Thread
         System.out.println(s);
     }
     
+    public void notifyClient(String s) throws IOException
+    {
+        dos.writeUTF(s);
+    }
+    
     // write recovered bytes to log file
     public void recover()
     {
@@ -233,6 +238,7 @@ class ClientHandler extends Thread
                                 {
                                     if(c != this && !c.isDaemon())
                                     {
+                                        c.notifyClient("Daemon : " + s);
                                         c.printMsg("About to recover ... " + c.s);
                                         c.recover();
                                     }

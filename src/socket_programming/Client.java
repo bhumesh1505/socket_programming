@@ -26,7 +26,8 @@ public class Client
         String filePath = projectPath + "\\clientLogs\\log.txt";
         
         try
-        { 
+        {
+            
             Scanner scn = new Scanner(System.in); 
             // getting localhost ip 
             InetAddress ip = InetAddress.getByName("localhost"); 
@@ -40,6 +41,12 @@ public class Client
 
             System.out.println("New Client : " + s);            
             System.out.println(dis.readUTF());
+            
+            //keep on checkig if server is sending some extra messege to client  
+            NotifyClient nc = new NotifyClient(dis,dos,s);
+            Thread notifyThread = new Thread(nc);
+            notifyThread.start();
+            
             while (true) 
             { 
                 String tosend = scn.nextLine(); // read from user terminal
@@ -105,5 +112,37 @@ public class Client
         }catch(Exception e){
             System.out.println(e);
         } 
-    } 
+    }
 } 
+
+class NotifyClient extends Thread
+{
+    final DataInputStream dis; 
+    final DataOutputStream dos; 
+    final Socket s; 
+    NotifyClient(DataInputStream dis , DataOutputStream dos , Socket s )
+    {
+        this.dis = dis;
+        this.dos = dos;
+        this.s = s;
+    }
+    
+    @Override
+    public void run() 
+    {
+        try
+        {
+           while(true) 
+           {
+               Thread.sleep(5000);
+               if(dis.available() > 0)
+               {
+                    System.out.println(dis.readUTF());
+               }
+           }
+        }
+        catch(Exception e)
+        {
+        }
+    }
+}
